@@ -15,6 +15,10 @@ class ValleyBot(commands.Bot):
         print(f"Logged in as {self.user.name}")
         print("------")
 
+    async def on_command_error(self, ctx, error):
+        if isinstance(error, commands.CheckFailure):
+            await ctx.send("🚫 You can only use this command in approved channels.")
+
     async def setup_hook(self):
         # Load cogs
         for cog in cogs:
@@ -24,6 +28,13 @@ class ValleyBot(commands.Bot):
             except Exception as e:
                 print(f"Failed to load {cog}: {e}")
 
+        @self.check
+        async def global_channel_check(interaction: discord.Interaction):
+            if interaction.channel.id != 1374982862121598986:
+                await interaction.response.send_message(
+                    "This command can only be used in the designated channel.", ephemeral=True
+                )
+                return False
 
 bot = ValleyBot()
 bot.run(TOKEN)
